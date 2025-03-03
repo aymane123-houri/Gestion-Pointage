@@ -1,0 +1,227 @@
+package com.example.rapportservice.controller;
+
+
+import com.example.rapportservice.entity.Rapport;
+import com.example.rapportservice.model.Employe;
+import com.example.rapportservice.model.Statistiques;
+import com.example.rapportservice.service.RapportService;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.servers.Server;
+import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
+
+@OpenAPIDefinition(
+        info = @Info(
+                title = "Gestion des Rapports",
+                description = " Gerer les Rapports",
+                version = "1.0.0"
+        ),
+
+        servers = @Server(
+                url = "http://localhost:8085/"
+        )
+)
+//@CrossOrigin(origins = "http://localhost:4200")
+@RestController
+@RequestMapping("/Rapports")
+public class RapportController {
+
+private final RapportService rapportService;
+
+    public RapportController(RapportService rapportService) {
+        this.rapportService = rapportService;
+    }
+
+    @Operation(
+            summary = "Ajouter Un Rapport",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    required = true,
+                    content = @Content(
+                            mediaType = "Application/json",
+                            schema = @Schema(implementation = Rapport.class)
+                    )
+            ),
+            responses = {
+                    @ApiResponse(responseCode = "200",
+                            description = "ajouter par succéses",
+                            content = @Content(
+                                    mediaType = "Application/json",
+                                    schema = @Schema(implementation = Rapport.class))
+                    ),
+
+                    @ApiResponse(responseCode = "400",description = "erreur données"),
+                    @ApiResponse(responseCode ="500", description = "erreur server")
+            }
+    )
+    @PostMapping
+    public ResponseEntity<Rapport> CreateRapport(@RequestBody Rapport rapport) {
+        return ResponseEntity.ok(rapportService.createRapport(rapport));
+    }
+
+
+
+    @Operation(
+            summary = "recuperer un Rapport par son Id",
+            parameters = @Parameter(
+                    name = "id",
+                    required = true
+            ),
+            responses = {
+                    @ApiResponse(responseCode = "200",
+                            description = "bien recuperer",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = Rapport.class))
+                    ),
+                    @ApiResponse(responseCode = "404",description = "rapport pas trouvé ")
+            }
+    )
+    @GetMapping("/{id}")
+    public ResponseEntity<Rapport> getRapportById(@PathVariable String id) {
+        return ResponseEntity.ok(rapportService.getRapportById(id));
+    }
+
+
+    @Operation(
+            summary="Recuprer Liste des Rapports",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Succès",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = Rapport.class)
+                            )
+                    ),
+                    @ApiResponse(responseCode = "400", description = "Paramètre d'entrée non valide")
+            }  )
+    @GetMapping
+    public ResponseEntity<List<Rapport>> getAllRapport() {
+
+        return ResponseEntity.ok(rapportService.getAllRapport());
+    }
+
+
+    @Operation(
+            summary = "Mettre à jour un rapport par ID",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    required = true,
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = Rapport.class)
+                    )
+            ),
+            parameters = @Parameter(
+                    name = "id",
+                    description = "ID de Rapport à mettre à jour",
+                    required = true
+            ),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Rapport mis à jour avec succès",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = Rapport.class)
+                            )
+                    ),
+                    @ApiResponse(responseCode = "404", description = "Rapport introuvable"),
+                    @ApiResponse(responseCode = "500", description = "Erreur serveur")
+            }
+    )
+    @PutMapping("/{id}")
+    public ResponseEntity<Rapport> UpdateRapport(@RequestBody Rapport rapport,@PathVariable String id) {
+        return ResponseEntity.ok(rapportService.updateRapport(rapport,id));
+    }
+
+    @Operation(
+            summary = "Supprimer un rapport par ID",
+            parameters = @Parameter(
+                    name = "id",
+                    description = "ID de Rapport à supprimer",
+                    required = true
+            ),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Rapport supprimé avec succès"),
+                    @ApiResponse(responseCode = "404", description = "Rapport introuvable"),
+                    @ApiResponse(responseCode = "500", description = "Erreur serveur")
+            }
+    )
+    @DeleteMapping("/{id}")
+    public void DeleteRapport(@PathVariable String id) {
+        rapportService.deleteRapport(id);
+    }
+
+
+
+
+
+
+/*
+
+    @PostMapping("/mensuel/{employeId}/{mois}/{annee}")
+    public Rapport genererRapportMensuel(@PathVariable Long employeId, @PathVariable int mois, @PathVariable int annee) {
+        return rapportService.genererRapportMensuel(employeId, mois, annee);
+    }
+
+    @PostMapping("/hebdomadaire/{employeId}/{semaine}")
+    public Rapport genererRapportHebdomadaire(@PathVariable Long employeId, @PathVariable String semaine) {
+        return rapportService.genererRapportHebdomadaire(employeId, LocalDate.parse(semaine));
+    }
+
+    @GetMapping("/employe/{employeId}")
+    public List<Rapport> getRapportsParEmploye(@PathVariable Long employeId) {
+        return rapportService.getRapportsParEmploye(employeId);
+    }
+
+    @GetMapping("/periode")
+    public List<Rapport> getRapportsParPeriode(@RequestParam String debut, @RequestParam String fin) {
+        return rapportService.getRapportsParPeriode(debut, fin);
+    }
+
+    @GetMapping("/heuresSupp/{employeId}/{mois}/{annee}")
+    public int calculerHeuresSupplementaires(@PathVariable Long employeId, @PathVariable int mois, @PathVariable int annee) {
+        return rapportService.calculerHeuresSupplementaires(employeId, mois, annee);
+    }
+
+    @GetMapping("/retards/{employeId}/{mois}/{annee}")
+    public int calculerRetards(@PathVariable Long employeId, @PathVariable int mois, @PathVariable int annee) {
+        return rapportService.calculerRetards(employeId, mois, annee);
+    }
+
+    @GetMapping("/absences/{employeId}/{mois}/{annee}")
+    public int calculerAbsences(@PathVariable Long employeId, @PathVariable int mois, @PathVariable int annee) {
+        return rapportService.calculerAbsences(employeId, mois, annee);
+    }*/
+
+    @Scheduled(cron = "00 35 23 * * ?")
+    public void genererRapportJournalieres() {
+        rapportService.genererRapportsQuotidiens();
+    }
+
+
+    @GetMapping("/statistiques")
+    public ResponseEntity<Map<String, Integer>> getStatistiques(
+            @RequestParam int mois,
+            @RequestParam int annee) {
+        return ResponseEntity.ok(rapportService.calculerStatistiques(mois, annee));
+    }
+
+    @GetMapping("/statistiques-jour-precedent")
+    public Statistiques getStatistiquesJourPrecedent() {
+        return rapportService.getStatistiquesJourPrecedent();
+    }
+
+    @GetMapping("/{idEmploye}/{year}/{month}")
+    public ResponseEntity<Rapport> getRapportByEmploye(@PathVariable Long idEmploye, @PathVariable int year, @PathVariable int month) {
+        Rapport rapport = rapportService.getRapportByEmployeAndPeriode(idEmploye, year, month);
+        return ResponseEntity.ok(rapport);
+    }
+}
