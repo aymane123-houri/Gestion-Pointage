@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding">
+    <file url="file://$PROJECT_DIR$/Administrateur-Service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Anomalie-Service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Anomalie-Service/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Conge-Service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Discovery-Service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Employe-Service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Employe-Service/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Gateway-Service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Horaire-Service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Notification-Service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Notification-Service/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Pointage-Service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Rapport-Service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Security-Service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Security-Service/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/User-Service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/resources" charset="UTF-8" />
+  </component>
+</project>
