@@ -7,8 +7,8 @@ import io.github.resilience4j.retry.annotation.Retry;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-
-@FeignClient(name = "administrateur-service" , url = "http://localhost:8087")
+//, url = "http://localhost:8087"
+@FeignClient(name = "ADMINISTRATEUR-SERVICE" )
 public interface AdministrateurFeignClient {
     @GetMapping("/Administrateurs/{id}")
     @CircuitBreaker(name = "administrateur-service", fallbackMethod = "fallbackMethod")

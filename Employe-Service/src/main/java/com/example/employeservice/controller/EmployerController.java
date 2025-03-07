@@ -26,7 +26,8 @@ import java.util.List;
         ),
 
         servers = @Server(
-                url = "http://localhost:8081/"
+                //url = "http://localhost:8081/"
+                url = "http://employe-service:8081/"
         )
 )
 //@CrossOrigin(origins = "http://localhost:4200")
@@ -165,7 +166,15 @@ public class EmployerController {
 
 
 
-
+    @Operation(
+            summary = "Récupérer le dernier matricule attribué",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Dernier matricule récupéré avec succès",
+                            content = @Content(mediaType = "application/json", schema = @Schema(type = "string"))
+                    ),
+                    @ApiResponse(responseCode = "500", description = "Erreur serveur")
+            }
+    )
     @GetMapping("/employes/last-matricule")
     public ResponseEntity<String> getLastMatricule() {
         String lastMatricule = employeService.getLastMatricule();
@@ -176,22 +185,51 @@ public class EmployerController {
 
 
 
-
+    @Operation(
+            summary = "Rechercher un employé par nom",
+            parameters = @Parameter(
+                    name = "nom",
+                    description = "Nom de l'employé à rechercher",
+                    required = true
+            ),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Liste des employés trouvés",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = Employe.class))
+                    )
+            }
+    )
     @GetMapping("/rechercher/{nom}")
     public List<Employe> rechercherParNom(@PathVariable String nom) {
         return employeService.rechercherParNom(nom);
     }
 
+    @Operation(
+            summary = "Rechercher les employés d'un département",
+            parameters = @Parameter(
+                    name = "departement",
+                    description = "Nom du département",
+                    required = true
+            ),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Liste des employés du département",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = Employe.class))
+                    )
+            }
+    )
     @GetMapping("/departement/{departement}")
     public List<Employe> rechercherParDepartement(@PathVariable String departement) {
         return employeService.rechercherParDepartement(departement);
     }
 
 
-    /*@PutMapping("/{employeId}/statut/{statut}")
-    public void changerStatutEmploye(@PathVariable String employeId, @PathVariable String statut) {
-        employeService.changerStatutEmploye(employeId, statut);
-    }*/
+    @Operation(
+            summary = "Récupérer le nombre total d'employés",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Nombre total d'employés",
+                            content = @Content(mediaType = "application/json", schema = @Schema(type = "integer"))
+                    )
+            }
+    )
     @GetMapping("/api/employes/count")
     public long getNombreEmployes() {
         return employeService.getNombreEmployes();

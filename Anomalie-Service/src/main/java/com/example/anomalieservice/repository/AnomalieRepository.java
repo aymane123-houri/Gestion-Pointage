@@ -21,8 +21,9 @@ public interface AnomalieRepository extends MongoRepository<Anomalie,String> {
     long countBydateValidationBetween(LocalDate debut, LocalDate fin);
     // Recherche des anomalies par plage de dates (entre startOfDay et endOfDay)
     // Recherche des anomalies par plage de dates (entre startOfDay et endOfDay)
-    List<Anomalie> findByDateValidationBetween(LocalDateTime startOfDay, LocalDateTime endOfDay);
 
+    @Query("{ 'dateValidation': { $gte: ?0, $lte: ?1 } }")
+    List<Anomalie> findByDateValidationBetween(Instant startOfDay, Instant endOfDay);
 
     @Query("{ 'employe_id': ?0, 'dateValidation': { $gte: ?1, $lte: ?2 }, 'type': { $in: ['RETARD', 'Départ_anticipe'] } }")
     List<Anomalie> findRetardsAndDepartAnticipeByEmployeAndDate(Long employe_id, Instant startDate, Instant endDate);

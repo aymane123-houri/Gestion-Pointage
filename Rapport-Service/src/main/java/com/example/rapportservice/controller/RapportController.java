@@ -29,7 +29,8 @@ import java.util.Map;
         ),
 
         servers = @Server(
-                url = "http://localhost:8085/"
+                //url = "http://localhost:8085/"
+                url = "http://rapport-service:8085/"
         )
 )
 //@CrossOrigin(origins = "http://localhost:4200")
@@ -200,13 +201,27 @@ private final RapportService rapportService;
     public int calculerAbsences(@PathVariable Long employeId, @PathVariable int mois, @PathVariable int annee) {
         return rapportService.calculerAbsences(employeId, mois, annee);
     }*/
-
-    @Scheduled(cron = "00 35 23 * * ?")
+@Operation(
+        summary = "Générer automatiquement les rapports quotidiens",
+        description = "Cette méthode est exécutée automatiquement chaque jour à 23h30 pour générer les rapports journaliers."
+)
+    @Scheduled(cron = "00 30 23 * * ?")
     public void genererRapportJournalieres() {
         rapportService.genererRapportsQuotidiens();
     }
 
-
+    @Operation(
+            summary = "Obtenir les statistiques d'un mois donné",
+            parameters = {
+                    @Parameter(name = "mois", description = "Mois concerné (1-12)", required = true),
+                    @Parameter(name = "annee", description = "Année concernée", required = true)
+            },
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Statistiques récupérées avec succès",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))
+                    )
+            }
+    )
     @GetMapping("/statistiques")
     public ResponseEntity<Map<String, Integer>> getStatistiques(
             @RequestParam int mois,
@@ -214,11 +229,33 @@ private final RapportService rapportService;
         return ResponseEntity.ok(rapportService.calculerStatistiques(mois, annee));
     }
 
+    @Operation(
+            summary = "Obtenir les statistiques du jour précédent",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Statistiques du jour précédent récupérées",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = Statistiques.class))
+                    )
+            }
+    )
     @GetMapping("/statistiques-jour-precedent")
     public Statistiques getStatistiquesJourPrecedent() {
         return rapportService.getStatistiquesJourPrecedent();
     }
 
+    @Operation(
+            summary = "Obtenir un rapport mensuel pour un employé donné",
+            parameters = {
+                    @Parameter(name = "idEmploye", description = "ID de l'employé", required = true),
+                    @Parameter(name = "year", description = "Année du rapport", required = true),
+                    @Parameter(name = "month", description = "Mois du rapport (1-12)", required = true)
+            },
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Rapport trouvé",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = Rapport.class))
+                    ),
+                    @ApiResponse(responseCode = "404", description = "Aucun rapport trouvé pour cet employé et cette période")
+            }
+    )
     @GetMapping("/{idEmploye}/{year}/{month}")
     public ResponseEntity<Rapport> getRapportByEmploye(@PathVariable Long idEmploye, @PathVariable int year, @PathVariable int month) {
         Rapport rapport = rapportService.getRapportByEmployeAndPeriode(idEmploye, year, month);

@@ -15,8 +15,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-@FeignClient(name = "pointage-service" , url = "http://localhost:8083")
+//, url = "http://localhost:8083"
+@FeignClient(name = "POINTAGE-SERVICE" )
 public interface PointageFeignAnomalie {
 
     @GetMapping("/Pointages/{id}")

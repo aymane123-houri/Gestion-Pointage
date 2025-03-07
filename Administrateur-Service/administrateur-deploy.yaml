@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: administrateur-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: administrateur-service
+  template:
+    metadata:
+      labels:
+        app: administrateur-service
+    spec:
+      containers:
+        - name: administrateur-service
+          image: administrateur-service
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8087
+          env:
+            - name: DISCOVERY_SERVICE_URL
+              value: http://discovery-service.default.svc.cluster.local:8761/eureka
+
+
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8087
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 3
+
+---
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: administrateur-service
+spec:
+  selector:
+    app: administrateur-service
+  ports:
+    - protocol: TCP
+      port: 8087
+      targetPort: 8087
+  type: LoadBalancer

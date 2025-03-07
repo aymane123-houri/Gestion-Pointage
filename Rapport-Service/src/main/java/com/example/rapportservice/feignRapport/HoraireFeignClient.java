@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 import java.util.ArrayList;
 import java.util.List;
-
-@FeignClient(name = "horaire-service", url = "http://localhost:8084")
+//, url = "http://localhost:8084"
+@FeignClient(name = "HORAIRE-SERVICE")
 public interface HoraireFeignClient {
 
     @GetMapping("/Horaires")

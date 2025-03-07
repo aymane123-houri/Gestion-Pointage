@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
-
-@FeignClient(name = "employe-service" , url = "http://localhost:8081")
+//, url = "http://localhost:8081"
+@FeignClient(name = "EMPLOYE-SERVICE" )
 public interface EmployeFeignHoraire {
     @GetMapping("/Employes/{id}")
     @CircuitBreaker(name = "employe-service", fallbackMethod = "fallbackMethod")

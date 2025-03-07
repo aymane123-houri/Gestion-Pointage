@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.ArrayList;
 import java.util.List;
-
-@FeignClient(name = "horaire-service" , url = "http://localhost:8084")
+//, url = "http://localhost:8084"
+@FeignClient(name = "HORAIRE-SEVICE" )
 public interface HoraireFeignClient {
     @GetMapping("/Horaires/employe/{employeId}")
     @CircuitBreaker(name = "employe-service", fallbackMethod = "fallbackMethod")

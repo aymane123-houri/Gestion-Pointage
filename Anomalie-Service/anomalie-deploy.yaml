@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: anomalie-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: anomalie-service
+  template:
+    metadata:
+      labels:
+        app: anomalie-service
+    spec:
+      containers:
+        - name: anomalie-service
+          image: anomalie-service
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8086
+          env:
+            - name: DISCOVERY_SERVICE_URL
+              value: http://discovery-service.default.svc.cluster.local:8761/eureka
+
+
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8086
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 3
+
+---
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: anomalie-service
+spec:
+  selector:
+    app: anomalie-service
+  ports:
+    - protocol: TCP
+      port: 8086
+      targetPort: 8086
+  type: LoadBalancer

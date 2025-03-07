@@ -32,7 +32,8 @@ import java.util.List;
         ),
 
         servers = @Server(
-                url = "http://localhost:8086/"
+                //url = "http://localhost:8086/"
+                url = "http://anomalie-service:8086/"
         )
 )
 //@CrossOrigin(origins = "http://localhost:4200")
@@ -179,14 +180,27 @@ public class AnomalieController {
         }
     }
 
-
+    @Operation(
+            summary = "Détecter automatiquement les anomalies journalières",
+            description = "Cette tâche est exécutée chaque jour à 23h30 pour détecter les anomalies"
+    )
     // Exécute la tâche tous les jours à 23h59
     @Scheduled(cron = "00 30 23 * * ?")
     public void detecterAnomaliesJournalieres() {
         anomalieService.detecterAnomalies();
     }
 
-
+    @Operation(
+            summary = "Récupérer les anomalies du jour",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Liste des anomalies du jour",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = Anomalie.class)
+                            )
+                    )
+            }
+    )
     // Méthode pour récupérer les anomalies d'aujourd'hui
     @GetMapping("/anomalies/duJour")
     public List<Anomalie> getAnomaliesDuJour() {
@@ -195,13 +209,40 @@ public class AnomalieController {
         LocalDateTime endOfDay = startOfDay.plusDays(1).minusNanos(1);  // Fin de la journée à 23:59:59.999999999
 
         // Log pour vérifier les dates
-        System.out.println("Start of Day: " + startOfDay);
-        System.out.println("End of Day: " + endOfDay);
+        System.out.println("🔍 Start of Day: " + startOfDay);
+        System.out.println("🔍 End of Day: " + endOfDay);
 
         // Appel du service pour récupérer les anomalies entre ces deux dates
-        return anomalieService.findAnomaliesByDate(startOfDay, endOfDay);
+        List<Anomalie> anomalies = anomalieService.findAnomaliesByDate(startOfDay, endOfDay);
+
+        // Log des résultats
+        if (anomalies.isEmpty()) {
+            System.out.println("⚠️ Aucune anomalie trouvée pour aujourd'hui !");
+        } else {
+            System.out.println("✅ Nombre d'anomalies trouvées : " + anomalies.size());
+            anomalies.forEach(a -> System.out.println("📌 Anomalie ID: " + a.getId() + " - Employé ID: " + a.getEmploye_id() + " - Type: " + a.getType()));
+        }
+
+        return anomalies;
     }
 
+
+    @Operation(
+            summary = "Récupérer les retards d'un employé sur une période",
+            parameters = {
+                    @Parameter(name = "idEmploye", description = "ID de l'employé", required = true),
+                    @Parameter(name = "year", description = "Année", required = true),
+                    @Parameter(name = "month", description = "Mois", required = true)
+            },
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Liste des retards de l'employé",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = Anomalie.class)
+                            )
+                    )
+            }
+    )
     // ✅ Endpoint pour récupérer les retards d'un employé sur une période
     @GetMapping("/{idEmploye}/{year}/{month}")
     public List<Anomalie> getRetardsByEmploye(@PathVariable Long idEmploye, @PathVariable int year, @PathVariable int month) {

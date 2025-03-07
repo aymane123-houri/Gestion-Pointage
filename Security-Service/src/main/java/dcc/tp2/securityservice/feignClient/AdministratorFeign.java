@@ -14,9 +14,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 public interface AdministratorFeign {
 
         @GetMapping("/Administrateurs/email/{email}")
-        @CircuitBreaker(name = "receptionist-service", fallbackMethod = "fallbackMethod")
-        @Retry(name = "receptionist-service", fallbackMethod = "fallbackMethod")
-        @RateLimiter(name = "receptionist-service", fallbackMethod = "fallbackMethod")
+        @CircuitBreaker(name = "administrateur-service", fallbackMethod = "fallbackMethod")
+        @Retry(name = "administrateur-service", fallbackMethod = "fallbackMethod")
+        @RateLimiter(name = "administrateur-service", fallbackMethod = "fallbackMethod")
         Administrateur getAdministrator(@PathVariable String email);
 
         default Administrateur fallbackMethod(String email, Throwable throwable){

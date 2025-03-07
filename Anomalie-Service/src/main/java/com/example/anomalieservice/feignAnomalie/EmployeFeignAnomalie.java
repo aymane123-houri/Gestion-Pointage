@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.ArrayList;
 import java.util.List;
-
-@FeignClient(name = "employe-service" , url = "http://localhost:8081")
+//, url = "http://localhost:8081"
+@FeignClient(name = "EMPLOYE-SERVICE" )
 public interface EmployeFeignAnomalie {
     @GetMapping("/Employes/{id}")
     @CircuitBreaker(name = "employe-service", fallbackMethod = "fallbackMethod")

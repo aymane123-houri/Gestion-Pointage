@@ -32,7 +32,8 @@ import java.util.Optional;
         ),
 
         servers = @Server(
-                url = "http://localhost:8083/"
+                //url = "http://localhost:8083/"
+                url = "http://pointage-service:8083/"
         )
 )
 //@CrossOrigin(origins = "http://localhost:4200")
@@ -199,22 +200,76 @@ public class PointageController {
 
 
 
-
+    @Operation(
+            summary = "Enregistrer un pointage d'entrée",
+            parameters = @Parameter(
+                    name = "employeId",
+                    description = "ID de l'employé",
+                    required = true
+            ),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Pointage d'entrée enregistré avec succès",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = Pointage.class))
+                    ),
+                    @ApiResponse(responseCode = "404", description = "Employé introuvable")
+            }
+    )
     @PostMapping("/entree/{employeId}")
     public Pointage enregistrerPointageEntree(@PathVariable Long employeId) {
         return pointageService.enregistrerPointageEntree(employeId);
     }
 
+    @Operation(
+            summary = "Enregistrer un pointage de sortie",
+            parameters = @Parameter(
+                    name = "employeId",
+                    description = "ID de l'employé",
+                    required = true
+            ),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Pointage de sortie enregistré avec succès",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = Pointage.class))
+                    ),
+                    @ApiResponse(responseCode = "404", description = "Employé introuvable")
+            }
+    )
     @PostMapping("/sortie/{employeId}")
     public Pointage enregistrerPointageSortie(@PathVariable Long employeId) {
         return pointageService.enregistrerPointageSortie(employeId);
     }
 
+    @Operation(
+            summary = "Récupérer le dernier pointage d'un employé",
+            parameters = @Parameter(
+                    name = "employeId",
+                    description = "ID de l'employé",
+                    required = true
+            ),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Dernier pointage trouvé",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = Pointage.class))
+                    ),
+                    @ApiResponse(responseCode = "404", description = "Aucun pointage trouvé")
+            }
+    )
     @GetMapping("/dernier/{employeId}")
     public Pointage getDernierPointage(@PathVariable Long employeId) {
         return pointageService.getDernierPointage(employeId);
     }
 
+    @Operation(
+            summary = "Récupérer les pointages d'un employé à une date donnée",
+            parameters = {
+                    @Parameter(name = "id", description = "ID de l'employé", required = true),
+                    @Parameter(name = "date", description = "Date du pointage (format YYYY-MM-DD)", required = true)
+            },
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Liste des pointages de l'employé",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = Pointage.class))
+                    ),
+                    @ApiResponse(responseCode = "404", description = "Aucun pointage trouvé pour cette date")
+            }
+    )
     @GetMapping("/employe/{id}/{date}")
     public ResponseEntity<List<Pointage>> getPointages(@PathVariable Long id, @PathVariable String date) {
         LocalDate localDate = LocalDate.parse(date);
@@ -225,7 +280,18 @@ public class PointageController {
         return ResponseEntity.ok(pointages);
     }
 
-
+    @Operation(
+            summary = "Récupérer tous les pointages entre deux dates",
+            parameters = {
+                    @Parameter(name = "debut", description = "Date de début (format YYYY-MM-DD)", required = true),
+                    @Parameter(name = "fin", description = "Date de fin (format YYYY-MM-DD)", required = true)
+            },
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Liste des pointages dans la période donnée",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = Pointage.class))
+                    )
+            }
+    )
     @GetMapping("/api/pointages")
     public List<Pointage> getAllPointages(@RequestParam String debut, @RequestParam String fin) {
         return pointageService.getAllPointages(debut, fin);

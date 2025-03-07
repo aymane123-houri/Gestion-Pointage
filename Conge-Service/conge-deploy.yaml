@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: conge-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: conge-service
+  template:
+    metadata:
+      labels:
+        app: conge-service
+    spec:
+      containers:
+        - name: conge-service
+          image: conge-service
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8089
+          env:
+            - name: DISCOVERY_SERVICE_URL
+              value: http://discovery-service.default.svc.cluster.local:8761/eureka
+
+
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8089
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 3
+
+---
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: conge-service
+spec:
+  selector:
+    app: conge-service
+  ports:
+    - protocol: TCP
+      port: 8089
+      targetPort: 8089
+  type: LoadBalancer

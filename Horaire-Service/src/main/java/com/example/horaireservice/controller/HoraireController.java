@@ -26,7 +26,8 @@ import java.util.List;
         ),
 
         servers = @Server(
-                url = "http://localhost:8084/"
+                //url = "http://localhost:8084/"
+                url = "http://horaire-service:8084/"
         )
 )
 //@CrossOrigin(origins = "http://localhost:4200")
@@ -158,7 +159,20 @@ public class HoraireController {
     }
 
 
-
+    @Operation(
+            summary = "Rechercher un employé par nom",
+            parameters = @Parameter(
+                    name = "nom",
+                    description = "Nom de l'employé à rechercher",
+                    required = true
+            ),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Liste des employés trouvés",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = Employe.class))
+                    ),
+                    @ApiResponse(responseCode = "404", description = "Aucun employé trouvé")
+            }
+    )
     // Route pour rechercher un employé par nom
     @GetMapping("/rechercherEmploye/{nom}")
     public ResponseEntity<List<Employe>> rechercherEmployeParNom(@PathVariable String nom) {
@@ -169,17 +183,20 @@ public class HoraireController {
         return ResponseEntity.ok(employes);
     }
 
-
-    // Méthode pour récupérer les horaires d'un employé pour une date donnée
-   /* @GetMapping("/employe/{employeId}/{date}")
-    public List<Horaire> getHorairesParEmployeEtDate(@PathVariable Long employeId, @PathVariable String date) {
-        // Convertir la chaîne de caractères 'date' en LocalDate
-        LocalDate localDate = LocalDate.parse(date);
-
-        // Appeler le service pour récupérer les horaires
-        return horaireService.getHorairesParEmployeEtDate(employeId, localDate);
-    }*/
-
+    @Operation(
+            summary = "Récupérer les horaires d'un employé",
+            parameters = @Parameter(
+                    name = "employeId",
+                    description = "ID de l'employé",
+                    required = true
+            ),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Liste des horaires de l'employé",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = Horaire.class))
+                    ),
+                    @ApiResponse(responseCode = "404", description = "Aucun horaire trouvé pour cet employé")
+            }
+    )
     @GetMapping("/employe/{employeId}")
     public List<Horaire> getHorairesParEmploye(@PathVariable Long employeId) {
         return horaireService.getHorairesParEmploye(employeId);

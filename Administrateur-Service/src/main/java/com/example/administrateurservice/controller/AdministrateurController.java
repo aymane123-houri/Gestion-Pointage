@@ -25,8 +25,8 @@ import java.util.Map;
         ),
 
         servers = @Server(
-                //url = "http://administrateur-service:8087/"
-                url = "http://localhost:8087/"
+                url = "http://administrateur-service:8087/"
+                //url = "http://localhost:8087/"
         )
 )
 

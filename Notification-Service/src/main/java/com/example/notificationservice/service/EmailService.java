@@ -2,11 +2,15 @@ package com.example.notificationservice.service;
 
 import com.example.notificationservice.document.Notification;
 import com.example.notificationservice.document.NotificationAdmin;
+import com.example.notificationservice.feignClient.AdministratorFeignClient;
+import com.example.notificationservice.model.Administrateur;
 import com.example.notificationservice.model.Anomalie;
 import com.example.notificationservice.model.Employe;
 import com.example.notificationservice.model.Messages;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -14,23 +18,33 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 public class EmailService {
 
     private final JavaMailSender mailSender;
     private final Messages messages;
+    private final AdministratorFeignClient administratorFeignClient;
 
-    public EmailService(JavaMailSender mailSender, Messages messages) {
+
+    public EmailService(JavaMailSender mailSender, Messages messages, AdministratorFeignClient administratorFeignClient) {
         this.mailSender = mailSender;
         this.messages = messages;
+        this.administratorFeignClient = administratorFeignClient;
     }
-
 
     public void sendAbsenceNotification(Notification notification) throws MessagingException {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true);
 
+        if (notification == null || notification.getAnomalie() == null ||
+                notification.getAnomalie().getEmploye() == null ||
+                notification.getAnomalie().getEmploye().getEmail() == null) {
+            System.out.println("❌ Impossible d'envoyer l'email : informations manquantes.");
+            return;
+        }
         // Set recipient email
         helper.setTo(notification.getAnomalie().getEmploye().getEmail());
 
@@ -40,7 +54,7 @@ public class EmailService {
         // Set message body
         helper.setText(messages.getAbsenceNotification(notification.getAnomalie().getEmploye(),
                 notification.getAnomalie().getPointage(),
-                notification.getHoraire()));
+                notification.getHoraire()), true);
 
         // Send email
         mailSender.send(message);
@@ -71,19 +85,52 @@ public class EmailService {
         System.out.println("📧 Email de notification envoyé aux administrateurs.");
     }
 */
-
+    private static final Logger logger = LoggerFactory.getLogger(KafkaConsumerService.class);
     public void sendAdminAbsenceReport(NotificationAdmin notificationAdmin) throws MessagingException {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true);
 
-        List<String> adminEmails = List.of("admin1@example.com", "admin2@example.com");  // Liste des emails des administrateurs
+        try {
+            // Récupération des administrateurs via FeignClient
+            List<Administrateur> admins = administratorFeignClient.getAllAdministrateurs();
 
-        helper.setTo(adminEmails.toArray(new String[0]));  // Envoi à tous les administrateurs
-        helper.setSubject(notificationAdmin.getSujet());
-        helper.setText(notificationAdmin.getMessage());  // Corps du message généré dans getAdminAbsenceReport
+            // Vérifier si la liste d'administrateurs est vide ou nulle
+            if (admins == null || admins.isEmpty()) {
+                logger.warn("❌ Aucun administrateur trouvé, email non envoyé.");
+                return;
+            }
 
-        mailSender.send(message);
+            // Extraction des emails des administrateurs
+            List<String> adminEmails = admins.stream()
+                    .map(Administrateur::getEmail) // Supposons que getEmail() existe
+                    .filter(Objects::nonNull) // Filtre les emails nuls
+                    .collect(Collectors.toList()); // Liste des emails des administrateurs
+
+            // Vérification qu'il y a des emails valides
+            if (adminEmails.isEmpty()) {
+                logger.warn("❌ Aucun email valide trouvé parmi les administrateurs.");
+                return;
+            }
+
+            // Définition du destinataire, du sujet et du corps du message
+            helper.setTo(adminEmails.toArray(new String[0])); // Envoi à tous les administrateurs
+            helper.setSubject(notificationAdmin.getSujet());
+            helper.setText(messages.getAdminAbsenceReport(notificationAdmin.getAbsences()), true); // Corps du message généré dans getAdminAbsenceReport
+
+            // Envoi de l'email
+            mailSender.send(message);
+            logger.info("✅ Rapport d'absences envoyé avec succès aux administrateurs.");
+
+        } catch (MessagingException e) {
+            // Gestion des exceptions spécifiques à l'envoi d'email
+            logger.error("❌ Erreur lors de l'envoi du rapport d'absences : " + e.getMessage(), e);
+            throw e; // Rethrow pour que l'appelant puisse gérer l'erreur
+        } catch (Exception e) {
+            // Gestion des autres exceptions
+            logger.error("❌ Erreur imprévue lors de l'envoi du rapport d'absences : " + e.getMessage(), e);
+        }
     }
+
 
 
 

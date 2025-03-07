@@ -207,19 +207,26 @@ public class AnomalieService {
     }
 
 
-    // Méthode pour récupérer les anomalies par plage de dates
+
     public List<Anomalie> findAnomaliesByDate(LocalDateTime startOfDay, LocalDateTime endOfDay) {
-        List<Anomalie> anomalieList= anomalieRepository.findByDateValidationBetween(startOfDay, endOfDay)
-                .stream()
-                .filter(a -> "ABSENCE".equals(a.getType())) // Filtrer uniquement les absences
-                .collect(Collectors.toList());
-        for(Anomalie a: anomalieList){
+        // Convertir LocalDateTime en ZonedDateTime (UTC)
+        Instant startUtc = startOfDay.atZone(ZoneId.systemDefault()).toInstant();
+        Instant endUtc = endOfDay.atZone(ZoneId.systemDefault()).toInstant();
+
+        System.out.println("🕒 Start of Day (UTC): " + startUtc);
+        System.out.println("🕒 End of Day (UTC): " + endUtc);
+
+        // Récupérer les anomalies en utilisant la date en UTC
+        List<Anomalie> anomalies = anomalieRepository.findByDateValidationBetween(startUtc, endUtc);
+        for(Anomalie a: anomalies){
             a.setEmploye(employeFeignAnomalie.getEmployeById(a.getEmploye_id()));
         }
-        for(Anomalie a: anomalieList){
-            a.setPointage(pointageFeignAnomalie.getpointageById(a.getPointage_id()));
+
+        if (anomalies.isEmpty()) {
+            System.out.println("⚠️ Aucune anomalie trouvée après conversion UTC !");
         }
-     return anomalieList;
+
+        return anomalies;
     }
 
 
