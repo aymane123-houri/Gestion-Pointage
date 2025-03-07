@@ -8,4 +8,4 @@
 /dataSources.local.xml
 # Zeppelin ignored files
 /ZeppelinRemoteNotebooks/
-venv/
+Recon_facial/venv/
