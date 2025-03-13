@@ -185,7 +185,7 @@ public class AnomalieController {
             description = "Cette tâche est exécutée chaque jour à 23h30 pour détecter les anomalies"
     )
     // Exécute la tâche tous les jours à 23h59
-    @Scheduled(cron = "00 30 23 * * ?")
+    @Scheduled(cron = "00 00 23 * * ?")
     public void detecterAnomaliesJournalieres() {
         anomalieService.detecterAnomalies();
     }

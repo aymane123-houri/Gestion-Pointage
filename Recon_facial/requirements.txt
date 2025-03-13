@@ -1,5 +1,12 @@
 Flask
+Flask-Migrate
+Flask-Cors
 opencv-python
 numpy
 pillow
 face-recognition
+py_eureka_client
+pymysql
+Flask-SQLAlchemy
+mysql-connector-python
+requests

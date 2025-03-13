@@ -205,7 +205,7 @@ private final RapportService rapportService;
         summary = "Générer automatiquement les rapports quotidiens",
         description = "Cette méthode est exécutée automatiquement chaque jour à 23h30 pour générer les rapports journaliers."
 )
-    @Scheduled(cron = "00 30 23 * * ?")
+    @Scheduled(cron = "00 10 23 * * ?")
     public void genererRapportJournalieres() {
         rapportService.genererRapportsQuotidiens();
     }

@@ -62,6 +62,7 @@ public class EmployerController {
                     @ApiResponse(responseCode ="500", description = "erreur server")
             }
     )
+    @CrossOrigin(origins = "*")
     @PostMapping
     public ResponseEntity<Employe> CreateEmploye( @RequestBody Employe employe){
         System.out.println("Données reçues: " + employe);

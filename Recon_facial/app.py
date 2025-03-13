@@ -81,14 +81,36 @@ import mysql.connector
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import requests
+from py_eureka_client.eureka_client import EurekaClient
+import asyncio
+import os
 
 app = Flask(__name__)
 CORS(app)
+# Enregistrer les blueprints
 
+eureka_server_url = os.getenv('DISCOVERY_SERVICE_URL', 'http://localhost:8761/eureka/')
+eureka_client = EurekaClient(
+    #eureka_server="http://localhost:8761/eureka/",  # URL du serveur Eureka
+    eureka_server=eureka_server_url,
+    app_name="reconnaissance-service",  # Nom de votre microservice
+    instance_port=5000,  # Port de votre service
+    #instance_ip="127.0.0.1",  # Adresse IP de votre instance
+    #instance_ip="0.0.0.0",
+    instance_ip="reconnaissance-service.default.svc.cluster.local",
+    region="default",  # Région (facultatif)
+)
+
+async def start_eureka_client():
+    await eureka_client.start()
 # Configuration de la connexion à la base de données
+
+
 def get_db_connection():
     return mysql.connector.connect(
-        host="localhost",
+        #host="localhost",
+        #host="employe-service",
+        host="mysql-service",
         user="root",
         password="",
         database="employe_db"
@@ -190,7 +212,8 @@ def comparer_visages(image_encodée):
 
 # Fonction pour enregistrer le pointage via le microservice
 def enregistrer_pointage(employe_id):
-    url = f'http://localhost:8083/Pointages/enregistrer/{employe_id}'  # Mise à jour du port
+    #url = f'http://localhost:8083/Pointages/enregistrer/{employe_id}'  # Mise à jour du port
+    url = f'http://pointage-service:8083/Pointages/enregistrer/{employe_id}'
     data = {'employeId': employe_id}
 
     response = requests.post(url, json=data)
@@ -221,4 +244,6 @@ def recognize_face():
         return jsonify({'message': 'Erreur lors de la reconnaissance faciale', 'status': 'Échec'}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    asyncio.run(start_eureka_client())
+    #app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000)
