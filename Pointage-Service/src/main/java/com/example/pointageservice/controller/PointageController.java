@@ -174,7 +174,7 @@ public class PointageController {
             }
     )
     @PutMapping("/{id}")
-    public ResponseEntity<Pointage> UpdatePointage(Pointage pointage,String id){
+    public ResponseEntity<Pointage> UpdatePointage(@RequestBody Pointage pointage,@PathVariable String id){
         Pointage pointage1=pointageService.updatePointage(pointage,id);
         return ResponseEntity.ok(pointage1);
     }
@@ -295,5 +295,22 @@ public class PointageController {
     @GetMapping("/api/pointages")
     public List<Pointage> getAllPointages(@RequestParam String debut, @RequestParam String fin) {
         return pointageService.getAllPointages(debut, fin);
+    }
+
+
+    @GetMapping("/aujourdhui/{employeId}")
+    public ResponseEntity<List<Pointage>> getPointagesAujourdhui(
+            @PathVariable Long employeId,
+            @RequestParam(required = false) String date) {
+
+        LocalDate queryDate;
+        if (date != null && !date.isEmpty()) {
+            queryDate = LocalDate.parse(date);
+        } else {
+            queryDate = LocalDate.now();
+        }
+
+        List<Pointage> pointages = pointageService.getPointagesAujourdhui(employeId, queryDate);
+        return ResponseEntity.ok(pointages);
     }
 }

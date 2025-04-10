@@ -63,6 +63,13 @@ public class AdministrateurController {
         )
         @PostMapping
         public ResponseEntity<Administrateur> CreateAdministrateur(@RequestBody Administrateur administrateur){
+                // Affichage des données reçues
+                System.out.println("=== Données reçues ===");
+                System.out.println("Nom: " + administrateur.getNom());
+                System.out.println("Prénom: " + administrateur.getPrenom());
+                System.out.println("Email: " + administrateur.getEmail());
+                System.out.println("CIN: " + administrateur.getCin());
+                System.out.println("======================");
                 Administrateur administrateur1= administrateurService.createAdministrateur(administrateur);
                 return ResponseEntity.ok(administrateur1);
         }

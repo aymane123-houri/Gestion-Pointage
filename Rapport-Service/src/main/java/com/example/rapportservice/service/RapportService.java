@@ -309,4 +309,221 @@ public class RapportService {
         DayOfWeek dayOfWeek = date.getDayOfWeek();
         return dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY;
     }
+
+
+
+    public Map<String, Map<String, Integer>> getStatistiquesMensuelles(int mois, int annee) {
+        // Récupérer tous les rapports pour le mois et l'année donnés
+        String periode = annee + "-" + String.format("%02d", mois); // Format YYYY-MM
+        List<Rapport> rapports = rapportRepository.findByPeriode(periode);
+
+        // Initialiser les totaux pour chaque mois
+        Map<String, Map<String, Integer>> statistiquesParMois = new HashMap<>();
+
+        // Calculer les totaux pour le mois demandé
+        Map<String, Integer> statistiquesMois = new HashMap<>();
+        int totalAbsences = 0;
+        int totalRetards = 0;
+        int totalHeuresSupplementaires = 0;
+
+        for (Rapport rapport : rapports) {
+            totalAbsences += rapport.getAbsences();
+            totalRetards += rapport.getRetards();
+            totalHeuresSupplementaires += rapport.getHeures_supplementaires();
+        }
+
+        // Ajouter les totaux pour le mois demandé
+        statistiquesMois.put("totalAbsences", totalAbsences);
+        statistiquesMois.put("totalRetards", totalRetards);
+        statistiquesMois.put("totalHeuresSupplementaires", totalHeuresSupplementaires);
+
+        // Ajouter les statistiques pour le mois demandé dans la map globale
+        String nomMois = getNomMois(mois); // Convertir le numéro du mois en nom (ex: 1 -> "janvier")
+        statistiquesParMois.put(nomMois, statistiquesMois);
+
+        return statistiquesParMois;
+    }
+
+    // Méthode pour convertir un numéro de mois en nom de mois
+    private String getNomMois(int mois) {
+        String[] nomsMois = {
+                "janvier", "février", "mars", "avril", "mai", "juin",
+                "juillet", "août", "septembre", "octobre", "novembre", "décembre"
+        };
+        return nomsMois[mois - 1]; // Les mois sont indexés à partir de 1
+    }
+
+
+    public Map<String, Map<String, Integer>> getStatistiquesAnnuelles(int annee) {
+        // Récupérer tous les rapports pour l'année donnée
+        List<Rapport> rapports = rapportRepository.findByPeriodeStartingWith(String.valueOf(annee));
+
+        // Initialiser les totaux pour chaque mois
+        Map<String, Map<String, Integer>> statistiquesParMois = new HashMap<>();
+
+        // Boucler sur chaque mois de l'année
+        for (int mois = 1; mois <= 12; mois++) {
+            String periode = annee + "-" + String.format("%02d", mois); // Format YYYY-MM
+
+            // Calculer les totaux pour le mois en cours
+            int totalAbsences = 0;
+            int totalRetards = 0;
+            int totalHeuresSupplementaires = 0;
+
+            for (Rapport rapport : rapports) {
+                if (rapport.getPeriode().equals(periode)) {
+                    totalAbsences += rapport.getAbsences();
+                    totalRetards += rapport.getRetards();
+                    totalHeuresSupplementaires += rapport.getHeures_supplementaires();
+                }
+            }
+
+            // Ajouter les totaux pour le mois en cours
+            Map<String, Integer> statistiquesMois = new HashMap<>();
+            statistiquesMois.put("totalAbsences", totalAbsences);
+            statistiquesMois.put("totalRetards", totalRetards);
+            statistiquesMois.put("totalHeuresSupplementaires", totalHeuresSupplementaires);
+
+            // Ajouter les statistiques pour le mois en cours dans la map globale
+            String nomMois = getNomMois(mois); // Convertir le numéro du mois en nom (ex: 1 -> "janvier")
+            statistiquesParMois.put(nomMois, statistiquesMois);
+        }
+
+        return statistiquesParMois;
+    }
+
+
+    public Map<String, Integer> getStatistiquesParEmploye(Long employeId, int mois, int annee) {
+        // Récupérer le rapport pour l'employé et la période donnés
+        String periode = annee + "-" + String.format("%02d", mois); // Format YYYY-MM
+        Rapport rapport = rapportRepository.findByEmployeIdAndPeriode(employeId, periode);
+
+        // Vérifier si le rapport existe
+        if (rapport == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Aucun rapport trouvé pour cet employé et cette période.");
+        }
+
+        // Retourner les statistiques sous forme de Map
+        Map<String, Integer> statistiques = new HashMap<>();
+        statistiques.put("totalAbsences", rapport.getAbsences());
+        statistiques.put("totalRetards", rapport.getRetards());
+        statistiques.put("totalHeuresSupplementaires", (int) rapport.getHeures_supplementaires());
+
+        return statistiques;
+    }
+
+    public double getTauxAbsenteisme(int mois, int annee) {
+        String periode = annee + "-" + String.format("%02d", mois);
+        List<Rapport> rapports = rapportRepository.findByPeriode(periode);
+
+        int totalAbsences = 0;
+        int totalJoursOuvrables = LocalDate.of(annee, mois, 1).lengthOfMonth() * rapports.size(); // Approximation
+
+        for (Rapport rapport : rapports) {
+            totalAbsences += rapport.getAbsences();
+        }
+        if (totalJoursOuvrables == 0) {
+            return 0.0; // ou -1 pour signaler une absence de données
+        }
+        return (double) totalAbsences / totalJoursOuvrables * 100; // Taux en pourcentage
+    }
+
+    public double getTauxRetards(int mois, int annee) {
+        String periode = annee + "-" + String.format("%02d", mois);
+        List<Rapport> rapports = rapportRepository.findByPeriode(periode);
+
+        int totalRetards = 0;
+        int totalJoursTravailles = LocalDate.of(annee, mois, 1).lengthOfMonth() * rapports.size(); // Approximation
+
+        for (Rapport rapport : rapports) {
+            totalRetards += rapport.getRetards();
+        }
+        if (totalJoursTravailles == 0) {
+            return 0.0; // ou -1 pour signaler une absence de données
+        }
+        return (double) totalRetards / totalJoursTravailles * 100; // Taux en pourcentage
+    }
+
+    public Map<String, Object> getStatistiquesDetailleesParEmploye(Long employeId, int mois, int annee) {
+        String periode = annee + "-" + String.format("%02d", mois);
+        Rapport rapport = rapportRepository.findByEmployeIdAndPeriode(employeId, periode);
+
+        if (rapport == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Aucun rapport trouvé pour cet employé et cette période.");
+        }
+
+        Map<String, Object> statistiques = new HashMap<>();
+        statistiques.put("absences", rapport.getAbsences());
+        statistiques.put("retards", rapport.getRetards());
+        statistiques.put("heures_travaillees", rapport.getHeures_travaillees());
+        statistiques.put("heures_supplementaires", rapport.getHeures_supplementaires());
+
+        return statistiques;
+    }
+
+    public Map<String, Map<String, Integer>> getStatistiquesParJourSemaine(int mois, int annee) {
+        String periode = annee + "-" + String.format("%02d", mois);
+        List<Rapport> rapports = rapportRepository.findByPeriode(periode);
+
+        // Map pour stocker les statistiques par jour de la semaine
+        Map<String, Map<String, Integer>> statistiquesParJour = new HashMap<>();
+
+        for (Rapport rapport : rapports) {
+            for (RapportDetail detail : rapport.getDetails()) {
+                String jourSemaine = detail.getJour().getDayOfWeek().toString(); // Ex: "MONDAY"
+                statistiquesParJour.putIfAbsent(jourSemaine, new HashMap<>());
+                Map<String, Integer> stats = statistiquesParJour.get(jourSemaine);
+
+                stats.put("absences", stats.getOrDefault("absences", 0) + (detail.isAbsent() ? 1 : 0));
+                stats.put("retards", stats.getOrDefault("retards", 0) + (detail.isEnRetard() ? 1 : 0));
+            }
+        }
+
+        return statistiquesParJour;
+    }
+
+    public double getHeuresTravailleesMoyennes(int mois, int annee) {
+        String periode = annee + "-" + String.format("%02d", mois);
+        List<Rapport> rapports = rapportRepository.findByPeriode(periode);
+
+        int totalHeuresTravaillees = 0;
+        int nombreEmployes = rapports.size();
+
+        for (Rapport rapport : rapports) {
+            totalHeuresTravaillees += rapport.getHeures_travaillees();
+        }
+        if (nombreEmployes == 0) {
+            return 0.0; // ou -1.0 si tu veux signaler qu’il n’y a pas de données
+        }
+        return (double) totalHeuresTravaillees / nombreEmployes;
+    }
+
+    public Map<String, Map<String, Map<String, Integer>>> getStatistiquesParDepartement(int mois, int annee) {
+        String periode = annee + "-" + String.format("%02d", mois);
+        List<Rapport> rapports = rapportRepository.findByPeriode(periode);
+
+        // Map pour stocker les statistiques par département et par mois
+        Map<String, Map<String, Map<String, Integer>>> statistiquesParDepartement = new HashMap<>();
+
+        for (Rapport rapport : rapports) {
+            Employe employe = employeFeignRapport.getEmployeById(rapport.getEmployeId());
+            String departement = employe.getDepartement();
+
+            // Initialiser les statistiques pour le département s'il n'existe pas
+            statistiquesParDepartement.putIfAbsent(departement, new HashMap<>());
+            Map<String, Map<String, Integer>> statsParMois = statistiquesParDepartement.get(departement);
+
+            // Initialiser les statistiques pour le mois s'il n'existe pas
+            String nomMois = getNomMois(mois);
+            statsParMois.putIfAbsent(nomMois, new HashMap<>());
+            Map<String, Integer> stats = statsParMois.get(nomMois);
+
+            // Mettre à jour les totaux
+            stats.put("totalAbsences", stats.getOrDefault("totalAbsences", 0) + rapport.getAbsences());
+            stats.put("totalRetards", stats.getOrDefault("totalRetards", 0) + rapport.getRetards());
+            stats.put("totalHeuresSupplementaires", (int) (stats.getOrDefault("totalHeuresSupplementaires", 0) + rapport.getHeures_supplementaires()));
+        }
+
+        return statistiquesParDepartement;
+    }
 }

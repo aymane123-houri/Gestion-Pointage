@@ -12,4 +12,7 @@ public interface RapportRepository extends MongoRepository<Rapport,String> {
     Rapport findByEmployeIdAndPeriode(Long employeId, String periode);
 
     List<Rapport> findByPeriode(String periode);
+
+    // Trouver tous les rapports pour une année donnée
+    List<Rapport> findByPeriodeStartingWith(String annee);
 }

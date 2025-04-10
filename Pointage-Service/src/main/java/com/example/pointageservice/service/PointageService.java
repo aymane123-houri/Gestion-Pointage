@@ -33,7 +33,7 @@ public class PointageService {
         return pointageRepository.save(pointage);
     }*/
 
-    public Pointage createPointage(Long employeId) {
+    /*public Pointage createPointage(Long employeId) {
         // Vérifier si l'employé a déjà pointé aujourd'hui
         LocalDateTime todayStart = LocalDate.now().atStartOfDay(); // Début de la journée
         LocalDateTime now = LocalDateTime.now(); // Heure actuelle
@@ -55,6 +55,31 @@ public class PointageService {
         Pointage nouveauPointage = new Pointage();
         nouveauPointage.setEmployeId(employeId);
         nouveauPointage.setDateHeureEntree(now);
+        nouveauPointage.setStatut("Présent");
+        return pointageRepository.save(nouveauPointage);
+    }*/
+
+    public Pointage createPointage(Long employeId) {
+        LocalDate today = LocalDate.now();
+        List<Pointage> todayPointages = getPointagesAujourdhui(employeId, today);
+
+        // Vérifier s'il y a un pointage sans sortie
+        Optional<Pointage> incompletePointage = todayPointages.stream()
+                .filter(p -> p.getDateHeureSortie() == null)
+                .findFirst();
+
+        if (incompletePointage.isPresent()) {
+            // Enregistrer la sortie
+            Pointage pointage = incompletePointage.get();
+            pointage.setDateHeureSortie(LocalDateTime.now());
+            pointage.setStatut("Présent");
+            return pointageRepository.save(pointage);
+        }
+
+        // Sinon créer un nouveau pointage d'entrée
+        Pointage nouveauPointage = new Pointage();
+        nouveauPointage.setEmployeId(employeId);
+        nouveauPointage.setDateHeureEntree(LocalDateTime.now());
         nouveauPointage.setStatut("Présent");
         return pointageRepository.save(nouveauPointage);
     }
@@ -157,5 +182,19 @@ public class PointageService {
         LocalDateTime dateFin = LocalDate.parse(fin).atTime(23, 59, 59);
 
         return pointageRepository.findByDateHeureEntreeBetween(dateDebut, dateFin);
+    }
+
+
+    public List<Pointage> getPointagesAujourdhui(Long employeId, LocalDate date) {
+        LocalDateTime startOfDay = date.atStartOfDay();
+        LocalDateTime endOfDay = date.atTime(23, 59, 59);
+
+        List<Pointage> pointages = pointageRepository.findByEmployeIdAndDateHeureEntreeBetween(
+                employeId, startOfDay, endOfDay);
+
+        // Optionnel: Hydrater les données employé
+        pointages.forEach(p -> p.setEmploye(employeFeignPointage.getEmployeById(p.getEmployeId())));
+
+        return pointages;
     }
 }

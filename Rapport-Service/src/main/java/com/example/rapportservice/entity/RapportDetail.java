@@ -15,7 +15,6 @@ import java.time.LocalDate;
 @Document(collection = "rapport_details")
 public class RapportDetail {
     private Long employeId;
-
     private LocalDate jour;
     private double heuresTravaillees;
     private double heuresSupplementaires;

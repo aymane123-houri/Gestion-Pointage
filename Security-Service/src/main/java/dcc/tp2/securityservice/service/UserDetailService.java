@@ -53,6 +53,11 @@ public class UserDetailService implements UserDetailsService {
             administrateur = administratorFeign.getAdministrator(email);
             System.out.println(administrateur);
         }
+        if (userType.equals("Super_Admin")) {
+            System.out.println("YES Super_Admin");
+            administrateur = administratorFeign.getAdministrator(email);
+            System.out.println(administrateur);
+        }
 
         Collection<GrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority(administrateur.getRole()));

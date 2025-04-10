@@ -2,6 +2,7 @@ package com.example.pointageservice.repository;
 
 import com.example.pointageservice.entity.Pointage;
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -21,4 +22,7 @@ public interface PointageRepository extends MongoRepository<Pointage,String> {
     List<Pointage> findByEmployeId(Long employeId);
 
     List<Pointage> findByDateHeureEntreeBetween(LocalDateTime debut, LocalDateTime fin);
+
+    @Query("{ 'employeId' : ?0, 'dateHeureEntree' : { $gte: ?1, $lt: ?2 } }")
+    List<Pointage> findByEmployeIdAndToday(Long employeId, LocalDateTime startOfDay, LocalDateTime endOfDay);
 }

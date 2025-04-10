@@ -205,7 +205,7 @@ private final RapportService rapportService;
         summary = "Générer automatiquement les rapports quotidiens",
         description = "Cette méthode est exécutée automatiquement chaque jour à 23h30 pour générer les rapports journaliers."
 )
-    @Scheduled(cron = "00 22 23 * * ?")
+    @Scheduled(cron = "00 17 23 * * ?")
     public void genererRapportJournalieres() {
         rapportService.genererRapportsQuotidiens();
     }
@@ -261,4 +261,79 @@ private final RapportService rapportService;
         Rapport rapport = rapportService.getRapportByEmployeAndPeriode(idEmploye, year, month);
         return ResponseEntity.ok(rapport);
     }
+
+
+
+
+
+
+
+    // Endpoint pour les statistiques mensuelles
+    // Endpoint pour les statistiques mensuelles
+    @GetMapping("/statistiques/mensuelles")
+    public Map<String, Map<String, Integer>> getStatistiquesMensuelles(
+            @RequestParam int mois,
+            @RequestParam int annee) {
+        return rapportService.getStatistiquesMensuelles(mois, annee);
+    }
+
+    // Endpoint pour les statistiques annuelles
+    @GetMapping("/statistiques/annuelles")
+    public Map<String, Map<String, Integer>> getStatistiquesAnnuelles(
+            @RequestParam int annee) {
+        return rapportService.getStatistiquesAnnuelles(annee);
+    }
+
+    // Endpoint pour les statistiques par département
+    @GetMapping("/statistiques/departement")
+    public Map<String, Map<String, Map<String, Integer>>> getStatistiquesParDepartement(
+            @RequestParam int mois,
+            @RequestParam int annee) {
+        return rapportService.getStatistiquesParDepartement(mois, annee);
+    }
+
+
+    // Endpoint pour les statistiques par employé
+    @GetMapping("/statistiques/employe")
+    public Map<String, Integer> getStatistiquesParEmploye(
+            @RequestParam Long employeId,
+            @RequestParam int mois,
+            @RequestParam int annee) {
+        return rapportService.getStatistiquesParEmploye(employeId, mois, annee);
+    }
+    @GetMapping("/statistiques/taux-absenteisme")
+    public double getTauxAbsenteisme(
+            @RequestParam int mois,
+            @RequestParam int annee) {
+        return rapportService.getTauxAbsenteisme(mois, annee);
+    }
+
+    @GetMapping("/statistiques/taux-retards")
+    public double getTauxRetards(
+            @RequestParam int mois,
+            @RequestParam int annee) {
+        return rapportService.getTauxRetards(mois, annee);
+    }
+
+
+    @GetMapping("/statistiques/employe-details")
+    public Map<String, Object> getStatistiquesDetailleesParEmploye(
+            @RequestParam Long employeId,
+            @RequestParam int mois,
+            @RequestParam int annee) {
+        return rapportService.getStatistiquesDetailleesParEmploye(employeId, mois, annee);
+    }
+    @GetMapping("/statistiques/jour-semaine")
+    public Map<String, Map<String, Integer>> getStatistiquesParJourSemaine(
+            @RequestParam int mois,
+            @RequestParam int annee) {
+        return rapportService.getStatistiquesParJourSemaine(mois, annee);
+    }
+    @GetMapping("/statistiques/heures-travaillees-moyennes")
+    public double getHeuresTravailleesMoyennes(
+            @RequestParam int mois,
+            @RequestParam int annee) {
+        return rapportService.getHeuresTravailleesMoyennes(mois, annee);
+    }
+
 }

@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/Chatbot-Service/Chatbot-Service.iml" filepath="$PROJECT_DIR$/Chatbot-Service/Chatbot-Service.iml" />
       <module fileurl="file://$PROJECT_DIR$/Recon_facial/Recon_facial.iml" filepath="$PROJECT_DIR$/Recon_facial/Recon_facial.iml" />
     </modules>
   </component>
