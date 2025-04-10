@@ -1,0 +1,6 @@
+flask
+chromadb
+requests
+python-dotenv
+pydantic
+sentence-transformers
