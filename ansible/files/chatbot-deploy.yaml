@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chatbot-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: chatbot-service
+  template:
+    metadata:
+      labels:
+        app: chatbot-service
+    spec:
+      containers:
+        - name: chatbot-service
+          image: chatbot-service:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 5000
+          env:
+            - name: DISCOVERY_SERVICE_URL
+              value: http://discovery-service.default.svc.cluster.local:8761/eureka
+
+
+
+---
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: chatbot-service
+spec:
+  selector:
+    app: chatbot-service
+  ports:
+    - protocol: TCP
+      port: 5000
+      targetPort: 5000
+  type: LoadBalancer

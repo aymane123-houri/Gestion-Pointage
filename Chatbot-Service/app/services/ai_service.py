@@ -9,7 +9,7 @@ import logging
 class AIAgent:
     def __init__(self):
         # Mettez directement votre clé ici (TEMPORAIREMENT pour test)
-        self.api_key = "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"
+        self.api_key = "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"
 
         self.api_url = "https://openrouter.ai/api/v1/chat/completions"
         self.headers = {

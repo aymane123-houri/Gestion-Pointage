@@ -14,8 +14,8 @@ spec:
     spec:
       containers:
         - name: discovery-service
-          image: ayhouri/discovery-service
-          imagePullPolicy: Always
+          image: discovery-service
+          imagePullPolicy: Never
           ports:
             - containerPort: 8761
           env:

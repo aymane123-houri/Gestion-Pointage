@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: horaire-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: horaire-service
+  template:
+    metadata:
+      labels:
+        app: horaire-service
+    spec:
+      containers:
+        - name: horaire-service
+          image: horaire-service
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8084
+          env:
+            - name: DISCOVERY_SERVICE_URL
+              value: http://discovery-service.default.svc.cluster.local:8761/eureka
+
+
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8084
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 3
+
+---
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: horaire-service
+spec:
+  selector:
+    app: horaire-service
+  ports:
+    - protocol: TCP
+      port: 8084
+      targetPort: 8084
+  type: LoadBalancer

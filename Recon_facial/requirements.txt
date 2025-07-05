@@ -10,3 +10,5 @@ pymysql
 Flask-SQLAlchemy
 mysql-connector-python
 requests
+mediapipe
+facenet_pytorch

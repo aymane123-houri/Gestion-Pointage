@@ -53,7 +53,7 @@ public class UserDetailService implements UserDetailsService {
             administrateur = administratorFeign.getAdministrator(email);
             System.out.println(administrateur);
         }
-        if (userType.equals("Super_Admin")) {
+        if (userType.equals("SUPER_ADMIN")) {
             System.out.println("YES Super_Admin");
             administrateur = administratorFeign.getAdministrator(email);
             System.out.println(administrateur);

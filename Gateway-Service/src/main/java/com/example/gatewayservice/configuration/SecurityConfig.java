@@ -155,7 +155,8 @@ public class SecurityConfig {
                         .pathMatchers("/anomalie-service/**").hasAnyRole("ADMINISTRATEUR", "SUPER_ADMIN","RH")
 
                         // **Conge-Service**
-                        .pathMatchers("/conge-service/**").hasAnyRole("RH", "SUPER_ADMIN","RH")
+                        .pathMatchers("/conge-service/**").hasAnyRole("ADMINISTRATEUR", "SUPER_ADMIN","RH")
+                        .pathMatchers(HttpMethod.POST,"/conge-service/**").hasAnyRole("ADMINISTRATEUR", "SUPER_ADMIN","RH")
 
                         // Toutes les autres requêtes nécessitent une authentification
                         .anyExchange().authenticated()

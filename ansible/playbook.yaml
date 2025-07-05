@@ -1,0 +1,109 @@
+- name: Déployer les microservices de Gestion de Pointage
+  hosts: local
+  connection: local
+  gather_facts: no
+  collections:
+    - kubernetes.core
+
+  tasks:
+    - name: Déployer gateway
+      k8s:
+        kubeconfig: ~/.kube/config
+        state: present
+        definition: "{{ lookup('file', 'files/gateway-deployment.yaml') }}"
+
+    - name: Déployer discovery
+      k8s:
+        kubeconfig: ~/.kube/config
+        state: present
+        definition: "{{ lookup('file', 'files/discovery-deployment.yaml') }}"
+
+    - name: Déployer employe-service
+      k8s:
+        kubeconfig: ~/.kube/config
+        state: present
+        definition: "{{ lookup('file', 'files/employe-deployment.yaml') }}"
+
+    - name: Déployer mysql
+      k8s:
+        kubeconfig: ~/.kube/config
+        state: present
+        definition: "{{ lookup('file', 'files/mysql-deployment.yaml') }}"
+
+    - name: Déployer mongodb
+      k8s:
+        kubeconfig: ~/.kube/config
+        state: present
+        definition: "{{ lookup('file', 'files/mongodb-deployment.yaml') }}"
+
+    - name: Déployer administrateur
+      k8s:
+        kubeconfig: ~/.kube/config
+        state: present
+        definition: "{{ lookup('file', 'files/administrateur-deployment.yaml') }}"
+
+    - name: Déployer Horaire
+      k8s:
+        kubeconfig: ~/.kube/config
+        state: present
+        definition: "{{ lookup('file', 'files/horaire-deployment.yaml') }}"
+
+    - name: Déployer conge
+      k8s:
+        kubeconfig: ~/.kube/config
+        state: present
+        definition: "{{ lookup('file', 'files/conge-deployment.yaml') }}"
+
+    - name: Déployer pointage
+      k8s:
+        kubeconfig: ~/.kube/config
+        state: present
+        definition: "{{ lookup('file', 'files/pointage-deployment.yaml') }}"
+
+    - name: Déployer anomalie
+      k8s:
+        kubeconfig: ~/.kube/config
+        state: present
+        definition: "{{ lookup('file', 'files/anomalie-deployment.yaml') }}"
+
+    - name: Déployer rapport
+      k8s:
+        kubeconfig: ~/.kube/config
+        state: present
+        definition: "{{ lookup('file', 'files/rapport-deployment.yaml') }}"
+
+    - name: Déployer notification
+      k8s:
+        kubeconfig: ~/.kube/config
+        state: present
+        definition: "{{ lookup('file', 'files/notification-deployment.yaml') }}"
+
+    - name: Déployer security
+      k8s:
+        kubeconfig: ~/.kube/config
+        state: present
+        definition: "{{ lookup('file', 'files/security-deployment.yaml') }}"
+
+    - name: Déployer prometheus
+      k8s:
+        kubeconfig: ~/.kube/config
+        state: present
+        definition: "{{ lookup('file', 'files/prometheus-deployment.yaml') }}"
+
+    - name: Déployer grafana
+      k8s:
+        kubeconfig: ~/.kube/config
+        state: present
+        definition: "{{ lookup('file', 'files/grafana-deployment.yaml') }}"
+
+    - name: Déployer kafka
+      k8s:
+        kubeconfig: ~/.kube/config
+        state: present
+        definition: "{{ lookup('file', 'files/kafka-deployment.yaml') }}"
+
+    - name: Déployer Reconnaissance
+      k8s:
+        kubeconfig: ~/.kube/config
+        state: present
+        definition: "{{ lookup('file', 'files/reconnaissance-deployment.yaml') }}"

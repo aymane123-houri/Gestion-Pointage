@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class TwilioSmsService {
 
-    @Value("${twilio.account.sid}")
+   /* @Value("${twilio.account.sid}")
     private String accountSid;
 
     @Value("${twilio.auth.token}")
@@ -81,5 +81,5 @@ public class TwilioSmsService {
         String smsMessage = messages.getAbsenceSmsNotification(employe, pointage, horaire);
         sendSms(employe.getTelephone(), smsMessage);
     }
-
+*/
 }

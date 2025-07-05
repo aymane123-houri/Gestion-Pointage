@@ -87,7 +87,7 @@ public class KafkaProducerService {
             // Envoi de SMS si le numéro de téléphone est disponible
             if (employePhone != null && !employePhone.isEmpty()) {
                 String smsMessage = "⚠️ Absence non justifiée détectée ! Veuillez contacter votre responsable.";
-                twilioService.sendSms(employePhone, smsMessage);
+                //twilioService.sendSms(employePhone, smsMessage);
                 logger.info("✅ SMS envoyé à {}", employePhone);
             } else {
                 logger.warn("❌ Aucun numéro de téléphone enregistré pour l'employé ID: {}", employeId);
